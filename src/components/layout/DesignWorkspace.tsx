@@ -23,6 +23,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { ExportMenu } from "@/components/export-menu";
 import { CostPanel } from "@/components/panels/CostPanel";
 import { TemplatePalette } from "@/components/panels/TemplatePalette";
+import { HistoryPanel } from "@/components/panels/HistoryPanel";
 
 // Dynamic import for React Flow (client-only)
 const DesignCanvas = dynamic(
@@ -64,6 +65,7 @@ export default function DesignWorkspace() {
             </span>
           )}
           <div className="ml-auto flex items-center gap-2">
+            <HistoryPanel />
             <ExportMenu />
             <ThemeToggle />
           </div>

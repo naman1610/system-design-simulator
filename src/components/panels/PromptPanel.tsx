@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useDesignStore } from "@/stores/useDesignStore";
 import { useSimulationStore } from "@/stores/useSimulationStore";
+import { useHistoryStore } from "@/stores/useHistoryStore";
 import { applyAutoLayout } from "@/hooks/useAutoLayout";
 import { simulate } from "@/lib/simulation";
 import type { DesignNode, DesignEdge, TrafficEstimation } from "@/types/design";
@@ -89,6 +90,16 @@ export function PromptPanel() {
         })) as DesignNode[];
 
         useDesignStore.getState().setNodes(nodesWithMetrics);
+
+        // Auto-save to history
+        useHistoryStore.getState().save({
+          name: prompt.trim(),
+          prompt: prompt.trim(),
+          nodes: nodesWithMetrics,
+          edges: data.edges,
+          trafficEstimation: data.trafficEstimation as TrafficEstimation,
+          explanation: data.explanation,
+        });
       } catch (error) {
         const message =
           error instanceof Error ? error.message : "Unknown error";
