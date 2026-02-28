@@ -17,10 +17,11 @@ import { LatencyChart } from "@/components/charts/LatencyChart";
 import { ScalingChart } from "@/components/charts/ScalingChart";
 import { useDesignStore } from "@/stores/useDesignStore";
 import { useSimulationStore } from "@/stores/useSimulationStore";
-import { Activity, Settings, BarChart3, Cpu, Loader2 } from "lucide-react";
+import { Activity, Settings, BarChart3, Cpu, Loader2, DollarSign } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { ExportMenu } from "@/components/export-menu";
+import { CostPanel } from "@/components/panels/CostPanel";
 
 // Dynamic import for React Flow (client-only)
 const DesignCanvas = dynamic(
@@ -108,6 +109,13 @@ export default function DesignWorkspace() {
                   <BarChart3 className="w-3.5 h-3.5" />
                   Charts
                 </TabsTrigger>
+                <TabsTrigger
+                  value="costs"
+                  className="gap-1.5 text-xs data-[state=active]:shadow-sm"
+                >
+                  <DollarSign className="w-3.5 h-3.5" />
+                  Costs
+                </TabsTrigger>
               </TabsList>
 
               <ScrollArea className="flex-1">
@@ -149,6 +157,10 @@ export default function DesignWorkspace() {
                       </p>
                     </div>
                   )}
+                </TabsContent>
+
+                <TabsContent value="costs" className="mt-0">
+                  <CostPanel />
                 </TabsContent>
               </ScrollArea>
             </Tabs>
