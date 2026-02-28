@@ -3,10 +3,12 @@
 import React, { useCallback } from "react";
 import {
   ReactFlow,
+  ReactFlowProvider,
   Background,
   Controls,
   MiniMap,
   BackgroundVariant,
+  useReactFlow,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 
@@ -42,11 +44,21 @@ const miniMapNodeColor = (node: { data?: { type?: string; status?: string } }) =
 };
 
 export function DesignCanvas() {
+  return (
+    <ReactFlowProvider>
+      <DesignCanvasInner />
+    </ReactFlowProvider>
+  );
+}
+
+function DesignCanvasInner() {
   const nodes = useDesignStore((s) => s.nodes);
   const edges = useDesignStore((s) => s.edges);
   const onNodesChange = useDesignStore((s) => s.onNodesChange);
   const onEdgesChange = useDesignStore((s) => s.onEdgesChange);
   const setSelectedNodeId = useDesignStore((s) => s.setSelectedNodeId);
+  const addNode = useDesignStore((s) => s.addNode);
+  const { screenToFlowPosition } = useReactFlow();
 
   const onNodeClick = useCallback(
     (_: React.MouseEvent, node: { id: string }) => {
@@ -59,6 +71,27 @@ export function DesignCanvas() {
     setSelectedNodeId(null);
   }, [setSelectedNodeId]);
 
+  const onDragOver = useCallback((event: React.DragEvent) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "move";
+  }, []);
+
+  const onDrop = useCallback(
+    (event: React.DragEvent) => {
+      event.preventDefault();
+      const type = event.dataTransfer.getData("application/reactflow");
+      if (!type || !(type in COMPONENT_REGISTRY)) return;
+
+      const position = screenToFlowPosition({
+        x: event.clientX,
+        y: event.clientY,
+      });
+
+      addNode(type as ComponentType, position);
+    },
+    [screenToFlowPosition, addNode]
+  );
+
   return (
     <div className="w-full h-full">
       <ReactFlow
@@ -68,6 +101,8 @@ export function DesignCanvas() {
         onEdgesChange={onEdgesChange}
         onNodeClick={onNodeClick}
         onPaneClick={onPaneClick}
+        onDragOver={onDragOver}
+        onDrop={onDrop}
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         fitView

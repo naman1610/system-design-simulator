@@ -4,6 +4,8 @@ import type {
   DesignEdge,
   TrafficEstimation,
 } from "@/types/design";
+import type { ComponentType } from "@/types/components";
+import { COMPONENT_REGISTRY } from "@/lib/templates/registry";
 import type {
   OnNodesChange,
   OnEdgesChange,
@@ -39,6 +41,7 @@ interface DesignStore {
   onNodesChange: OnNodesChange<DesignNode>;
   onEdgesChange: OnEdgesChange<DesignEdge>;
   updateNodeParams: (nodeId: string, params: Partial<DesignNode["data"]["params"]>) => void;
+  addNode: (type: ComponentType, position: { x: number; y: number }) => void;
   setIsGenerating: (isGenerating: boolean) => void;
   setGenerationError: (error: string | null) => void;
   setSelectedNodeId: (nodeId: string | null) => void;
@@ -100,6 +103,24 @@ export const useDesignStore = create<DesignStore>((set, get) => ({
           : node
       ),
     });
+  },
+
+  addNode: (type, position) => {
+    const template = COMPONENT_REGISTRY[type];
+    const id = `${type}-${Date.now()}`;
+    const newNode: DesignNode = {
+      id,
+      type,
+      position,
+      data: {
+        type,
+        label: template.label,
+        description: template.description,
+        params: { ...template.defaultParams },
+        status: "healthy",
+      },
+    };
+    set({ nodes: [...get().nodes, newNode] });
   },
 
   setIsGenerating: (isGenerating) => set({ isGenerating }),

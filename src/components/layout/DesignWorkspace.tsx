@@ -22,6 +22,7 @@ import { Separator } from "@/components/ui/separator";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { ExportMenu } from "@/components/export-menu";
 import { CostPanel } from "@/components/panels/CostPanel";
+import { TemplatePalette } from "@/components/panels/TemplatePalette";
 
 // Dynamic import for React Flow (client-only)
 const DesignCanvas = dynamic(
@@ -72,6 +73,11 @@ export default function DesignWorkspace() {
 
       {/* Main content */}
       <div className="flex-1 flex overflow-hidden">
+        {/* Component palette (left) */}
+        {nodes.length > 0 && (
+          <TemplatePalette className="w-[180px] border-r bg-white dark:bg-neutral-900 flex flex-col overflow-hidden flex-shrink-0" />
+        )}
+
         {/* Canvas area */}
         <div className="flex-1 relative">
           {nodes.length === 0 && !isGenerating ? (
