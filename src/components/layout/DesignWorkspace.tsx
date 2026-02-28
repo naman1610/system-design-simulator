@@ -19,6 +19,7 @@ import { useDesignStore } from "@/stores/useDesignStore";
 import { useSimulationStore } from "@/stores/useSimulationStore";
 import { Activity, Settings, BarChart3, Cpu, Loader2 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 // Dynamic import for React Flow (client-only)
 const DesignCanvas = dynamic(
@@ -59,6 +60,9 @@ export default function DesignWorkspace() {
               {nodes.length} components
             </span>
           )}
+          <div className="ml-auto flex items-center gap-2">
+            <ThemeToggle />
+          </div>
         </div>
         <PromptPanel />
       </header>
