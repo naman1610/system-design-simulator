@@ -24,6 +24,11 @@ import { ExportMenu } from "@/components/export-menu";
 import { CostPanel } from "@/components/panels/CostPanel";
 import { TemplatePalette } from "@/components/panels/TemplatePalette";
 import { HistoryPanel } from "@/components/panels/HistoryPanel";
+import {
+  ResizablePanelGroup,
+  ResizablePanel,
+  ResizableHandle,
+} from "@/components/ui/resizable";
 
 // Dynamic import for React Flow (client-only)
 const DesignCanvas = dynamic(
@@ -48,6 +53,8 @@ export default function DesignWorkspace() {
   const isGenerating = useDesignStore((s) => s.isGenerating);
   const result = useSimulationStore((s) => s.result);
 
+  const hasDesign = nodes.length > 0;
+
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-background">
       {/* Header */}
@@ -59,7 +66,7 @@ export default function DesignWorkspace() {
               System Design Simulator
             </h1>
           </div>
-          {nodes.length > 0 && (
+          {hasDesign && (
             <span className="text-xs text-muted-foreground">
               {nodes.length} components
             </span>
@@ -74,116 +81,122 @@ export default function DesignWorkspace() {
       </header>
 
       {/* Main content */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Component palette (left) */}
-        {nodes.length > 0 && (
-          <TemplatePalette className="w-[180px] border-r bg-white dark:bg-neutral-900 flex flex-col overflow-hidden flex-shrink-0" />
-        )}
+      <div className="flex-1 overflow-hidden">
+        {hasDesign ? (
+          <ResizablePanelGroup orientation="horizontal">
+            {/* Component palette (left) */}
+            <ResizablePanel defaultSize="12%" minSize="8%" maxSize="22%">
+              <TemplatePalette className="h-full border-r bg-white dark:bg-neutral-900 flex flex-col overflow-hidden" />
+            </ResizablePanel>
+            <ResizableHandle withHandle />
 
-        {/* Canvas area */}
-        <div className="flex-1 relative">
-          {nodes.length === 0 && !isGenerating ? (
-            <EmptyState />
-          ) : isGenerating ? (
-            <GeneratingState />
-          ) : (
-            <DesignCanvas />
-          )}
-        </div>
-
-        {/* Right sidebar */}
-        {nodes.length > 0 && (
-          <div className="w-[340px] border-l bg-white dark:bg-neutral-900 flex flex-col overflow-hidden flex-shrink-0">
-            <Tabs defaultValue="simulation" className="flex flex-col h-full">
-              <TabsList className="w-full justify-start rounded-none border-b bg-transparent h-10 px-2 flex-shrink-0">
-                <TabsTrigger
-                  value="simulation"
-                  className="gap-1.5 text-xs data-[state=active]:shadow-sm"
-                >
-                  <Activity className="w-3.5 h-3.5" />
-                  Simulation
-                </TabsTrigger>
-                <TabsTrigger
-                  value="details"
-                  className="gap-1.5 text-xs data-[state=active]:shadow-sm"
-                >
-                  <Settings className="w-3.5 h-3.5" />
-                  Details
-                </TabsTrigger>
-                <TabsTrigger
-                  value="charts"
-                  className="gap-1.5 text-xs data-[state=active]:shadow-sm"
-                >
-                  <BarChart3 className="w-3.5 h-3.5" />
-                  Charts
-                </TabsTrigger>
-                <TabsTrigger
-                  value="costs"
-                  className="gap-1.5 text-xs data-[state=active]:shadow-sm"
-                >
-                  <DollarSign className="w-3.5 h-3.5" />
-                  Costs
-                </TabsTrigger>
-              </TabsList>
-
-              <ScrollArea className="flex-1">
-                <TabsContent value="simulation" className="mt-0">
-                  <SimulationPanel />
-                  {trafficEstimation && (
-                    <div className="px-4 pb-4">
-                      <TrafficPanel estimation={trafficEstimation} />
-                    </div>
-                  )}
-                </TabsContent>
-
-                <TabsContent value="details" className="mt-0">
-                  <NodeDetailPanel />
-                </TabsContent>
-
-                <TabsContent value="charts" className="mt-0 p-4 space-y-4">
-                  {result ? (
-                    <>
-                      <div>
-                        <h3 className="text-sm font-semibold mb-2">
-                          Latency vs Load
-                        </h3>
-                        <LatencyChart data={result.latencyDistribution} />
-                      </div>
-                      <Separator />
-                      <div>
-                        <h3 className="text-sm font-semibold mb-2">
-                          Scaling Curve (USL)
-                        </h3>
-                        <ScalingChart data={result.scalingData} />
-                      </div>
-                    </>
-                  ) : (
-                    <div className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground">
-                      <BarChart3 className="w-12 h-12 mb-4 opacity-30" />
-                      <p className="text-sm">
-                        Run a simulation to see charts
-                      </p>
-                    </div>
-                  )}
-                </TabsContent>
-
-                <TabsContent value="costs" className="mt-0">
-                  <CostPanel />
-                </TabsContent>
-              </ScrollArea>
-            </Tabs>
-
-            {/* Explanation */}
-            {explanation && (
-              <div className="border-t p-4 flex-shrink-0 max-h-[200px] overflow-y-auto">
-                <h4 className="text-xs font-medium text-muted-foreground mb-2">
-                  Architecture Explanation
-                </h4>
-                <p className="text-xs leading-relaxed text-muted-foreground">
-                  {explanation}
-                </p>
+            {/* Canvas area */}
+            <ResizablePanel defaultSize="60%" minSize="30%">
+              <div className="h-full relative">
+                {isGenerating ? <GeneratingState /> : <DesignCanvas />}
               </div>
-            )}
+            </ResizablePanel>
+            <ResizableHandle withHandle />
+
+            {/* Right sidebar */}
+            <ResizablePanel defaultSize="28%" minSize="18%" maxSize="50%">
+              <div className="h-full bg-white dark:bg-neutral-900 flex flex-col overflow-hidden border-l">
+                <Tabs defaultValue="simulation" className="flex flex-col h-full overflow-hidden">
+                  <TabsList className="w-full justify-start rounded-none border-b bg-transparent h-10 px-2 flex-shrink-0">
+                    <TabsTrigger
+                      value="simulation"
+                      className="gap-1.5 text-xs data-[state=active]:shadow-sm"
+                    >
+                      <Activity className="w-3.5 h-3.5" />
+                      Simulation
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="details"
+                      className="gap-1.5 text-xs data-[state=active]:shadow-sm"
+                    >
+                      <Settings className="w-3.5 h-3.5" />
+                      Details
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="charts"
+                      className="gap-1.5 text-xs data-[state=active]:shadow-sm"
+                    >
+                      <BarChart3 className="w-3.5 h-3.5" />
+                      Charts
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="costs"
+                      className="gap-1.5 text-xs data-[state=active]:shadow-sm"
+                    >
+                      <DollarSign className="w-3.5 h-3.5" />
+                      Costs
+                    </TabsTrigger>
+                  </TabsList>
+
+                  <ScrollArea className="flex-1 min-h-0">
+                    <TabsContent value="simulation" className="mt-0">
+                      <SimulationPanel />
+                      {trafficEstimation && (
+                        <div className="px-4 pb-4">
+                          <TrafficPanel estimation={trafficEstimation} />
+                        </div>
+                      )}
+                    </TabsContent>
+
+                    <TabsContent value="details" className="mt-0">
+                      <NodeDetailPanel />
+                    </TabsContent>
+
+                    <TabsContent value="charts" className="mt-0 p-4 space-y-4">
+                      {result ? (
+                        <>
+                          <div>
+                            <h3 className="text-sm font-semibold mb-2">
+                              Latency vs Load
+                            </h3>
+                            <LatencyChart data={result.latencyDistribution} />
+                          </div>
+                          <Separator />
+                          <div>
+                            <h3 className="text-sm font-semibold mb-2">
+                              Scaling Curve (USL)
+                            </h3>
+                            <ScalingChart data={result.scalingData} />
+                          </div>
+                        </>
+                      ) : (
+                        <div className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground">
+                          <BarChart3 className="w-12 h-12 mb-4 opacity-30" />
+                          <p className="text-sm">
+                            Run a simulation to see charts
+                          </p>
+                        </div>
+                      )}
+                    </TabsContent>
+
+                    <TabsContent value="costs" className="mt-0">
+                      <CostPanel />
+                    </TabsContent>
+                  </ScrollArea>
+                </Tabs>
+
+                {/* Explanation */}
+                {explanation && (
+                  <div className="border-t p-4 flex-shrink-0 max-h-[200px] overflow-y-auto">
+                    <h4 className="text-xs font-medium text-muted-foreground mb-2">
+                      Architecture Explanation
+                    </h4>
+                    <p className="text-xs leading-relaxed text-muted-foreground">
+                      {explanation}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </ResizablePanel>
+          </ResizablePanelGroup>
+        ) : (
+          <div className="h-full relative">
+            {isGenerating ? <GeneratingState /> : <EmptyState />}
           </div>
         )}
       </div>

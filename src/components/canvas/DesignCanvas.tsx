@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 import {
   ReactFlow,
   ReactFlowProvider,
@@ -16,6 +16,7 @@ import { nodeTypes } from "./nodes";
 import { edgeTypes } from "./edges/CustomEdge";
 import { useDesignStore } from "@/stores/useDesignStore";
 import { COMPONENT_REGISTRY } from "@/lib/templates/registry";
+import { setReactFlowInstance } from "@/lib/reactflow-instance";
 import type { ComponentType } from "@/types/components";
 
 const miniMapNodeColor = (node: { data?: { type?: string; status?: string } }) => {
@@ -58,7 +59,13 @@ function DesignCanvasInner() {
   const onEdgesChange = useDesignStore((s) => s.onEdgesChange);
   const setSelectedNodeId = useDesignStore((s) => s.setSelectedNodeId);
   const addNode = useDesignStore((s) => s.addNode);
-  const { screenToFlowPosition } = useReactFlow();
+  const reactFlowInstance = useReactFlow();
+  const { screenToFlowPosition } = reactFlowInstance;
+
+  useEffect(() => {
+    setReactFlowInstance(reactFlowInstance);
+    return () => setReactFlowInstance(null);
+  }, [reactFlowInstance]);
 
   const onNodeClick = useCallback(
     (_: React.MouseEvent, node: { id: string }) => {
