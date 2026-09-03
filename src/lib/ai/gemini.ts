@@ -4,16 +4,17 @@ let genAI: GoogleGenerativeAI | null = null;
 
 /**
  * Model priority for fallback when rate limits are hit.
- * Order: Gemini 3 Flash -> Gemini 2.5 Flash
+ * Order: Gemini 3.8 Flash -> Gemini 3.7 Flash -> Gemini 3.5 Flash-Lite
  * 
- * Based on Google AI documentation (March 2026):
- * - Gemini 3 Flash: "gemini-3-flash-preview" (frontier-class performance, preview)
- * - Gemini 2.5 Flash: "gemini-2.5-flash" (best price-performance, stable)
+ * Based on Google AI documentation (latest via Context7):
+ * - Gemini 3.8 Flash: "gemini-3.8-flash" (stable, software engineering and enterprise workflows)
+ * - Gemini 3.7 Flash: "gemini-3.7-flash" (stable, complex coding and agentic tasks)
+ * - Gemini 3.5 Flash-Lite: "gemini-3.5-flash-lite" (stable, high-throughput execution)
  */
 const MODEL_PRIORITY = [
-  "gemini-3-flash-preview",
-  "gemini-3.1-flash-lite-preview",
-  "gemini-2.5-flash",
+  "gemini-3.8-flash",
+  "gemini-3.7-flash",
+  "gemini-3.5-flash-lite",
 ] as const;
 
 function getClient(): GoogleGenerativeAI {
